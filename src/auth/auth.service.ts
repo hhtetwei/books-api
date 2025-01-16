@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto } from './dto';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
@@ -21,7 +21,7 @@ export class AuthService {
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
-          hash,
+          password: hash,
         },
         select: {
           id: true,
@@ -51,7 +51,7 @@ export class AuthService {
 
     if (!user) throw new ForbiddenException('Credentials Incorrect');
 
-    const passwordMatch = await argon.verify(user.hash, dto.password);
+    const passwordMatch = await argon.verify(user.password, dto.password);
 
     if (!passwordMatch) throw new ForbiddenException('Credentials Incorrect');
 
